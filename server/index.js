@@ -5,6 +5,12 @@ const wss = new WebSocket.Server({
 })
 wss.on('connection', function (ws) {
     ws.on('message', function (data) {
-        ws.send(data)
+        wss.clients.forEach(function each(client) {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(data);
+            }
+        });
     })
+
+
 })
