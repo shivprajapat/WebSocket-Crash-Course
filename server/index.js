@@ -8,11 +8,8 @@ app.use('/', express.static(path.resolve(__dirname, '../clients')));
 const server = app.listen(9876)
 
 const wss = new WebSocket.Server({
-    server,
-    verifyClient: (info) => {
-        console.log(info);
-        return true
-    }
+    noServer: true,
+
 })
 wss.on('connection', function (ws) {
     ws.on('message', function (data) {
@@ -22,6 +19,13 @@ wss.on('connection', function (ws) {
             }
         });
     })
-
-
 })
+server.on('upgrade', async function upgrade(request, socket, head) {
+    // Do what you normally do in `verifyClient()` here and then use
+    // `WebSocketServer.prototype.handleUpgrade()`.
+
+    if (Math.random() > 0.5) { return socket.end('HTTP/1.1 401 Unauthorized\r\n', 'ascii') }
+    wss.handleUpgrade(request, socket, head, function done(ws) {
+        wss.emit('connection', ws, request);
+    });
+});
