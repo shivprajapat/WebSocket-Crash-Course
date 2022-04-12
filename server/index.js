@@ -11,15 +11,24 @@ const wss = new WebSocket.Server({
     noServer: true,
 
 })
-wss.on('connection', function (ws) {
-    ws.on('message', function (data) {
+// wss.on('connection', function (ws) {
+//     ws.on('message', function (data) {
+//         wss.clients.forEach(function each(client) {
+//             if (client.readyState === WebSocket.OPEN) {
+//                 client.send(data);
+//             }
+//         });
+//     })
+// })
+wss.on('connection', function connection(ws) {
+    ws.on('message', function message(data, isBinary) {
         wss.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(data);
+                client.send(data, { binary: isBinary });
             }
         });
-    })
-})
+    });
+});
 server.on('upgrade', async function upgrade(request, socket, head) {
     // Do what you normally do in `verifyClient()` here and then use
     // `WebSocketServer.prototype.handleUpgrade()`.
